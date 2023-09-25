@@ -1,13 +1,22 @@
 #pragma once
 
-#include <iostream>
-using namespace std;
-
 #ifndef CONFIG
 #define CONFIG
 
+#include <iostream>
+#include<vector>
+#include<unordered_map>
+using namespace std;
+
 /// Total number of characters 
 #define TOTAL_CHARS 256
+#define TWO_GB 2^30
+
+typedef unordered_map<char, string> map_char_to_string ;
+typedef vector<char> vec_char;
+typedef vector<string> vec_string;
+typedef vector<int> vec_int;
+typedef vector<unsigned short> vec_ushort;
 
 struct HuffNode{
 	char ch;
@@ -33,7 +42,12 @@ struct HuffNode{
 	}
 };
 
-/// @brief Number of bits in each segment for encoding
-#define SEGMENT_SIZE 512 
+	#if TEST
+		/// @brief Number of bits in each segment for encoding
+		#define GAP_SEGMENT_SIZE 16
+	#else
+		/// @brief Number of bits in each segment for encoding
+		#define GAP_SEGMENT_SIZE 512 
+	#endif
 
-#endif
+#endif 

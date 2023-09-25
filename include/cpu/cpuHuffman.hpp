@@ -4,6 +4,7 @@
 #define HUFF_FUNCTIONS
 #include <iostream>
 #include <vector>
+#include <unordered_map>
 #include "configuration.hpp"
 
 using namespace std;
@@ -35,17 +36,17 @@ HuffNode* generateHuffmanTree(vector<HuffNode*> frequencies);
 /// @return the size of the encoded text in bits.
 u_int32_t populateHuffmanTable(vector<HuffNode*> *frequencies, HuffNode* rootNode, string &value);
 
-/// @brief Read files concurrently and populate the frequencies array.
+/// @brief CPU KERNEL - Reads files concurrently and populates the frequency array.
 /// @param fptr File pointer.
 /// @param frequencies 2 dimentional integer array to store frequencies of all characters from all threads.
 /// @param processor_count Number of processor.
 /// @return The size of file in bytes.
-u_int32_t concurrentReadFile(FILE *fptr, int (*frequencies)[][TOTAL_CHARS], u_int8_t processor_count);
+u_int32_t __concurrentCountCharFrequency__(FILE *fptr, int (*frequencies)[][TOTAL_CHARS], u_int8_t processor_count);
 
-/// @brief Calculate prefix sum on input vector concurrently.
+/// @brief CPU KERNEL - Compresses and calculates prefix sum on input file.
 /// @param vec Input vector to calculate prefix sum of.
 /// @param prefixSums Resultant vector where the sums will be stored.
 /// @param processor_count Number of CPU cores.
-void concurrentPrefixSum(vector<HuffNode*> vec, vector<int> prefixSums, u_int8_t processor_count);
+void __concurrentCompress__(string input_file, map_char_to_string *map, vec_string *compressed_output, vec_int *prefix_sum);
 
 #endif

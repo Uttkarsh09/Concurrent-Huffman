@@ -11,7 +11,7 @@ bool sortByCharFreq(const HuffNode* a, const HuffNode* b){
 }
 
 HuffNode* combineNodes(HuffNode* a, HuffNode* b){
-	printf("Combining %c(%d) & %c(%d)\n", a->ch, a->frequency, b->ch, b->frequency);
+	// printf("Combining %c(%d) & %c(%d)\n", a->ch, a->frequency, b->ch, b->frequency);
 
 	HuffNode* parent = new HuffNode((a?a->frequency:0) + (b?b->frequency:0));
 	parent->left = b;
@@ -23,7 +23,7 @@ HuffNode* generateHuffmanTree(vector<HuffNode*> frequencies){
 	HuffNode *one, *two, *parent;
 	sort(frequencies.begin(), frequencies.end(), sortByCharFreq);
 	for(HuffNode *temp : frequencies){
-		cout << "char - " << temp->ch << " freq - " << temp->frequency << endl;
+		// cout << "char - " << temp->ch << " freq - " << temp->frequency << endl;
 	}
 
 	if(frequencies.size() == 1){
