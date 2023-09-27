@@ -1,11 +1,6 @@
-#pragma once
-
-#ifndef UTILS
-#define UTILS
-
-#include <iostream>
+#include "configuration.hpp"
 using namespace std;
 
-u_int32_t getFileSize(FILE *fptr);
+bool sortByCharFreq(const HuffNode* a, const HuffNode* b);
 
-#endif
+void openFile(FILE **fptr, string file_path, string access_modifier);

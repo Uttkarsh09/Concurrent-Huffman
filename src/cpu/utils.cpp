@@ -1,18 +1,13 @@
-#include <iostream>
-#include "utils.hpp"
+#include"utils.hpp"
 
-using namespace std;
+bool sortByCharFreq(const HuffNode* a, const HuffNode* b){
+	return a->frequency > b->frequency;
+}
 
-u_int32_t getFileSize(FILE *fptr){
-	if(fptr == NULL){
-		cout << "Unable to open file to calculate its size" << endl;
-		exit(EXIT_FAILURE);
+void openFile(FILE **fptr, string file_path, string access_modifier){
+	*fptr = fopen(file_path.c_str(), access_modifier.c_str());
+	if(*fptr == NULL){
+		cout << "CANNOT OPEN FILE - " << file_path << endl;
+		exit(EXIT_FAILURE) ;
 	}
-	u_int32_t file_size = -1;
-
-	fseek(fptr, 0, SEEK_END);
-	file_size = ftell(fptr);
-	rewind(fptr);
-	
-	return file_size;
 }

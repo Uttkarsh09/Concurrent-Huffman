@@ -6,7 +6,7 @@
 using namespace std;
 
 int main(){
-	compressOnCPU("./docs/test.txt", "./docs/test.txt.huff");
+	compressOnCPU("./docs/test.txt");
 
 	return 0;
 }

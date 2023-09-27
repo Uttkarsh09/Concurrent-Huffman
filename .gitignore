@@ -1,5 +1,10 @@
 test.cpp
+test
 test1.cpp
+test1
 
 bin/*
-.vscode/*
+.vscode/
+logs/*
+
+docs/*.huff

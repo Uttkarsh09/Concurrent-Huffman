@@ -15,21 +15,19 @@ using namespace std;
 typedef unordered_map<char, string> map_char_to_string ;
 typedef vector<char> vec_char;
 typedef vector<string> vec_string;
-typedef vector<int> vec_int;
+typedef vector<u_int32_t> vec_uint;
 typedef vector<unsigned short> vec_ushort;
 
 struct HuffNode{
 	char ch;
 	u_int32_t frequency;
 	HuffNode *left, *right;
-	short compressed_length;
 	string compressed;
 
 	HuffNode (u_int32_t count){
 		this->ch = 0;
 		this->frequency = count;
 		this->left = this->right = nullptr;
-		this->compressed_length = 0;
 		this->compressed = "";
 	}
 
@@ -37,7 +35,6 @@ struct HuffNode{
 		this->ch = ch;
 		this->frequency = count;
 		this->left = this->right = nullptr;
-		this->compressed_length = 0;
 		this->compressed = "";
 	}
 };
