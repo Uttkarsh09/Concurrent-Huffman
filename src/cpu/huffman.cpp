@@ -1,5 +1,6 @@
 #include "huffman.hpp"
 #include <cstring>
+#include "logger.hpp"
 
 using namespace std;
 
@@ -222,5 +223,140 @@ void Huffman::mapCharacterToEncoding(){
 
 
 void Huffman::saveCompressedData(){
+	FILE *output_file_ptr;
+	short padding = (8 - ((compressed_file_size_bits) & (7))) & (7);
+	string output_header_buffer = "";
+	u_int32_t count = 0, j = 0;
+    unsigned char unique_characters = 255;
+	unsigned char bin_representation;
+	int gap_array_size_length = 0;
+	string gap_header_buffer = "";
+	Logger *l = Logger::getInstance("./logs/log.txt");
+
+	rewind(input_file_ptr);
+	openFile(&output_file_ptr, input_file_name.append(".huff"), "wb");
+
+	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ HEADER ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	
+	puts("Generating header");
+    // ? UniqueCharacter start from -1 {0 means 1, 1 means 2, to conserve memory}
+	for(int i=0 ; i<frequency_sum.size() ; i++){
+		output_header_buffer.push_back((int)frequency_sum[i]->ch);
+		output_header_buffer.push_back(frequency_sum[i]->compressed.length());
+		output_header_buffer += frequency_sum[i]->compressed;
+		++unique_characters;
+	}
+	cout << "Unique Characters = " << (int)unique_characters << endl;
+	// output_header_buffer = (char)unique_characters + output_header_buffer + (char)padding;
+	output_header_buffer = ((char)unique_characters) + output_header_buffer;
+	puts("Header Generated\n");
+
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ GAP ARRAY ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+	puts("Generating Gap Header");
+	int gap_array_size = gap_array.size();
+
+	while(gap_array_size != 0){
+		gap_array_size = gap_array_size/10;
+		++gap_array_size_length;
+	}
+
+	cout << "Gap array size = " << gap_array.size() << endl;
+	cout << "Gap array size length = " << gap_array_size_length << endl;
+	
+	if(gap_array_size_length > 255){
+		cout << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" << endl;
+		cout << "CANNOT STORE DOCUMENTS WITH GAP ARRAY SIZE MORE THAN 255" << endl;
+		cout << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" << endl;
+		exit(EXIT_FAILURE);
+	}
+	gap_header_buffer.push_back((char) gap_array_size_length);
+	cout << "gap header buffer len = " << gap_header_buffer.size() << endl;
+
+	// ? Only go in loop for >=2 elements. and if odd then exclude the last one.
+	// ? if gap_array_size = 1 won't go in loop
+	// ? if gap_array_size = 2 loop will run only 1 time
+	// ? if gap_array_size = 3 loop will run only 1 time and then following if will be true
+	count = 0;
+	gap_array_size = gap_array.size();
+	while((count < gap_array_size-1) && (gap_array_size!=1)){
+		bin_representation = 0;
+		for(j=0 ; j<2 ; j++){
+			if(j == 0){
+				bin_representation = gap_array[count+j];
+			}
+			else {
+				bin_representation = bin_representation << 3;
+				bin_representation = bin_representation | gap_array[count+j];
+				bin_representation = bin_representation << 2;
+			}
+		}
+		gap_header_buffer.push_back((char)bin_representation);
+		count+=2;
+	}
+	cout << "gap header buffer len = " << gap_header_buffer.size() << endl;
+
+	if(gap_array_size%2 == 1){
+		gap_header_buffer.push_back((char)gap_array[0]);
+	}
+
+	gap_header_buffer.push_back((char)GAP_SEGMENT_SIZE);
+	cout << "gap header buffer len = " << gap_header_buffer.size() << endl;
+	puts("Gap Header Generated\n");
+
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	
+	puts("Writing Header");
+	cout << "output_header_buffer len = " << output_header_buffer.size() << endl;
+	cout << output_header_buffer << endl;
+
+	cout << "appending GAP HEADER BUFFER " << endl;
+	output_header_buffer += gap_header_buffer + ((char)padding);
+	cout << "output_header_buffer len = " << output_header_buffer.size() << endl;
+	cout << output_header_buffer << endl;
+	
+	count = 0;
+	while(count < output_header_buffer.size()){
+		fputc(output_header_buffer[count++], output_file_ptr);
+	}
+	puts("Header Written\n");
+
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+	unsigned char ch, fch = 0;
+	char counter = 7;
+	u_int32_t size = 0, i;
+	
+	while(size != input_file_size_bytes){
+		ch = fgetc(input_file_ptr);
+		cout << "read -> " << ch;
+		i=0;
+		const string &huffmanStr = char_encoding_map[ch];
+		cout << " - " << huffmanStr << endl;
+
+		while(huffmanStr[i] != '\0'){
+			cout << "fch -> " << (int)fch << " | counter -> " << (int)counter << endl ;
+			cout << (int)(huffmanStr[i]-'0')<< endl;
+			fch = fch | ((huffmanStr[i] - '0') << counter);
+			counter = (counter + 7) & 7; // reduces the counter by 1
+			if(counter == 7){
+				cout <<"writing -> " << (int)fch << endl;
+				fputc(fch, output_file_ptr);
+				fch ^= fch;
+			}
+			++i;
+		}
+		++size;
+		// if((size * 100 / input_file_size_bytes) > ((size - 1) * 100 / input_file_size_bytes)) {
+        //     printf("\r%lld%% completed  ", (size * 100 / input_file_size_bytes));
+        // }
+	}
+
+	if(fch) {
+		cout << "LAST WRITE -> " << (int)fch << endl;
+        fputc(fch, output_file_ptr);
+    }
+
+	fclose(output_file_ptr);
+    printf("\n");
 }

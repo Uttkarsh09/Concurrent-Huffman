@@ -11,3 +11,16 @@ void openFile(FILE **fptr, string file_path, string access_modifier){
 		exit(EXIT_FAILURE) ;
 	}
 }
+
+short convertToBinary(unsigned short number){
+	short binary_number = 0;
+	short remainder;
+
+	while(number > 0){
+		remainder = number % 2;
+		binary_number = ((binary_number << 1) & (remainder));
+		number /= 2;	
+	}
+
+	return binary_number;
+}

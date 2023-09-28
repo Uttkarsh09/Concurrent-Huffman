@@ -1,11 +1,13 @@
 #include "configuration.hpp"
 #include "huffman.hpp"
 #include <thread>
+#include "logger.hpp"
 
 using namespace std;
 
 void compressOnCPU(string input_file_name){
 	Huffman huff(input_file_name);
+	Logger *Log = Logger::getInstance("./logs/log.txt");
 
 	huff.concurrentCountCharFrequency();
 
@@ -28,5 +30,5 @@ void compressOnCPU(string input_file_name){
 	}
 	cout<< endl;
 
-	// huff.saveCompressedData();
+	huff.saveCompressedData();
 }

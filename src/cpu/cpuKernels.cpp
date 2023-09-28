@@ -1,7 +1,7 @@
 #include <iostream>
 #include "configuration.hpp"
 #include "cpuKernels.hpp"
-#include "utils.hpp";
+#include "utils.hpp"
 
 using namespace std;
 
