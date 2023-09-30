@@ -2,33 +2,35 @@
 #include "huffman.hpp"
 #include <thread>
 #include "logger.hpp"
+#include "helper_timer.h"
 
 using namespace std;
 
 void compressOnCPU(string input_file_name){
+	StopWatchInterface* timer = NULL;
+	sdkCreateTimer(&timer);
 	Huffman huff(input_file_name);
 	Logger *Log = Logger::getInstance("./logs/log.txt");
 
 	huff.concurrentCountCharFrequency();
 
-	HuffNode *rootNode = huff.generateHuffmanTree(huff.frequency_sum);
-	cout << "\nAfter Generating Huffman Tree" << endl;
+	HuffNode *rootNode = huff.generateHuffmanTreeForCompression(huff.frequency_sum);
 	string tempStr = "";
 	huff.compressed_file_size_bits = huff.populateHuffmanTable(rootNode, tempStr);
 	
-	cout << "Original File Size -> " << huff.input_file_size_bytes << endl;
-	cout << "Encoded file size (without headers) -> " << huff.compressed_file_size_bits << "bits = ";
-	cout << huff.compressed_file_size_bits / 8 << "Bytes + " << huff.compressed_file_size_bits%8 << "bits" << endl;
+	// cout << "Original File Size -> " << huff.input_file_size_bytes << endl;
+	// cout << "Encoded file size (without headers) -> " << huff.compressed_file_size_bits << "bits = ";
+	// cout << huff.compressed_file_size_bits / 8 << "Bytes + " << huff.compressed_file_size_bits%8 << "bits" << endl;
 
 	huff.mapCharacterToEncoding();
-
+	
+	sdkStartTimer(&timer);
 	huff.concurrentCompress();
-	puts("Compressed and calculated prefix sum");
+	sdkStopTimer(&timer);	
 
-	for(unsigned short &g: huff.gap_array){
-		cout << g << " ";
-	}
-	cout<< endl;
+	cout << "Time Taken on CPU : " << sdkGetTimerValue(&timer) << " ms" << endl;
+	sdkDeleteTimer(&timer);
 
+	// puts("Compressed and calculated prefix sum");
 	huff.saveCompressedData();
 }

@@ -16,12 +16,31 @@ void __calculateFrequency__(
 	openFile(&fptr, file_name, "rb");
 	fseek(fptr, read_offset, SEEK_SET);
 
-	u_int32_t offset = 0;
+	u_int32_t count = 0;
 	char ch;
-	while(offset < length_to_read && !feof(fptr)){
+	while(count < length_to_read && !feof(fptr)){
 		ch = fgetc(fptr);
 		char_freq[(int)ch]++;
-		offset++;
+		count++;
+	}
+}
+
+void __readFile__(
+	string file_name, 
+	u_int32_t read_offset,
+	u_int32_t length_to_read,
+	vec_char *read_buffer
+){
+	FILE *fptr;
+	openFile(&fptr, file_name, "rb");
+	fseek(fptr, read_offset, SEEK_SET);
+
+	u_int32_t count = 0;
+	char ch;
+	while(count < length_to_read && !feof(fptr)){
+		ch = fgetc(fptr);
+		read_buffer->push_back(ch);
+		++count;
 	}
 }
 
@@ -37,7 +56,7 @@ void __compress__(
 	string s;
 
  	while(i < length){
-		s = map->at(input_ptr->at(offset+i));
+		s = map->at(input_ptr->at(i));
 		output_ptr->at(offset + i) = s;
 		sum += s.length();
 		prefix_ptr->at(offset+i) = sum;
