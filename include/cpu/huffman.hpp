@@ -13,7 +13,7 @@ using namespace std;
 
 class Huffman{
 	const int processor_count = thread::hardware_concurrency();
-	// const int processor_count = 1;
+	// const int processor_count = 1000;
 	string input_file_name;
 	FILE *input_file_ptr;
 	int i, j;

@@ -46,7 +46,7 @@ void __readFile__(
 
 void __compress__( 
 	vec_char *input_ptr, 
-	vec_string *output_ptr, 
+	// vec_string *output_ptr, 
 	vec_uint *prefix_ptr, 
 	int offset, 
 	map_char_to_string *map, 
@@ -57,7 +57,7 @@ void __compress__(
 
  	while(i < length){
 		s = map->at(input_ptr->at(i));
-		output_ptr->at(offset + i) = s;
+		// output_ptr->at(offset + i) = s;
 		sum += s.length();
 		prefix_ptr->at(offset+i) = sum;
 		++i;

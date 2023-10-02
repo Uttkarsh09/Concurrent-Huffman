@@ -2,7 +2,7 @@
 #include <cstring>
 #include "logger.hpp"
 #include "utils.hpp"
-
+#include "helper_timer.h"
 using namespace std;
 
 
@@ -134,13 +134,16 @@ void Huffman::concurrentCompress(){
 	vec_char input_buffer[processor_count];
 	int i=0, j, gap_idx, gap_segments_count;
 	char ch;
-
+	StopWatchInterface *timer = NULL;
+	sdkCreateTimer(&timer);
 	// puts("Reading input file for compression");
 	// while(!feof(input_file_ptr)) {
 	// 	ch = fgetc(input_file_ptr);
 	// 	if(!feof(input_file_ptr)) input_buffer.push_back(ch);
 	// }
-
+	
+	sdkStartTimer(&timer);
+	puts("Reading file");
 	offset = 0;
 	for(i=0 ; i<processor_count ; i++){
 		offset = i * segment_size;
@@ -157,21 +160,34 @@ void Huffman::concurrentCompress(){
 	}
 
 	joinThreads(processor_count, threads);
-	// puts("READ");
+	sdkStopTimer(&timer);
+	cout << "Reading FIle for compression : " << sdkGetTimerValue(&timer) << " ms" << endl;
+	sdkResetTimer(&timer);
+	puts("READ");
 
+	puts("Calculating total chars");
 	u_int32_t total_charactes = 0;
 	for(i=0 ; i<processor_count ; i++){
 		total_charactes += input_buffer[i].size();
 	}
-
-	compressed_output.resize(total_charactes);
+	puts("calculated total chars\n");
+	
+	puts("Resizing");
+	sdkStartTimer(&timer);
+	// compressed_output.resize(total_charactes);
 	prefix_sum.resize(total_charactes);
+	cout << "Resizing : " << sdkGetTimerValue(&timer) << " ms" << endl;
+	sdkResetTimer(&timer);
+	puts("Resized\n");
+
 
 	// cout << "Processor Cores -> " << processor_count <<endl;
 	// cout << "Input File size - " << input_file_size_bytes << endl;
 	// cout << "Segment size - " << segment_size << endl;
 	// puts("Starting the scheduler");
 
+	sdkStartTimer(&timer);
+	puts("Starting compression");
 	for(i=0 ; i<processor_count ; i++){
 		offset = i * segment_size;
 		// cout << "offset -> " << offset << endl;
@@ -183,7 +199,7 @@ void Huffman::concurrentCompress(){
 		threads[i] = thread(
 			__compress__, 
 			&input_buffer[i], 
-			&compressed_output, 
+			// &compressed_output, 
 			&prefix_sum, 
 			offset, 
 			&char_encoding_map, 
@@ -194,8 +210,13 @@ void Huffman::concurrentCompress(){
 	// puts("Joining");
 	joinThreads(processor_count, threads);
 
+	puts("Compressed");
+	cout << "Compressed TIme : " << sdkGetTimerValue(&timer) << " ms" << endl;
+	sdkResetTimer(&timer);
+	puts("\n");
 
-
+	puts("Starting Gap Calculation and prefix sum");
+	sdkStartTimer(&timer);
 	gap_idx=1;
 	gap_segments_count = (compressed_file_size_bits / GAP_SEGMENT_SIZE);  // +1 because the first one is by default 0
 	if((compressed_file_size_bits % GAP_SEGMENT_SIZE) >= 1){
@@ -229,6 +250,9 @@ void Huffman::concurrentCompress(){
 			}
 		}
 	}
+	cout << "GAP and prefix sum time : " << sdkGetTimerValue(&timer) << " ms" << endl;
+	sdkResetTimer(&timer);
+	puts("DONE -> Starting Gap Calculation and prefix sum\n");
 
 	// puts("Completed");
 

@@ -18,7 +18,7 @@ void __calculateFrequency__(
 /// @param offset 
 /// @param map 
 /// @param length 
-void __compress__(vec_char *input_buffer_ptr, vec_string *output_buffer_ptr, vec_uint *prefix_buffer_ptr, int offset, map_char_to_string *map, u_int32_t length);
+void __compress__(vec_char *input_buffer_ptr, vec_uint *prefix_buffer_ptr, int offset, map_char_to_string *map, u_int32_t length);
 
 
 void __readFile__(
