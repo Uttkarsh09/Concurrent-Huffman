@@ -366,6 +366,7 @@ void Huffman::saveCompressedData(){
 	unsigned char ch, fch = 0;
 	char counter = 7;
 	u_int32_t size = 0, i;
+	bool write_remaining=true;
 	
 	while(size != input_file_size_bytes){
 		ch = fgetc(input_file_ptr);
@@ -375,11 +376,13 @@ void Huffman::saveCompressedData(){
 		// cout << " - " << huffmanStr << endl;
 
 		while(huffmanStr[i] != '\0'){
+			write_remaining = true;
 			// cout << "fch -> " << (int)fch << " | counter -> " << (int)counter << endl ;
 			// cout << (int)(huffmanStr[i]-'0')<< endl;
 			fch = fch | ((huffmanStr[i] - '0') << counter);
 			counter = (counter + 7) & 7; // reduces the counter by 1
 			if(counter == 7){
+				write_remaining = false;
 				// cout <<"writing -> " << (int)fch << endl;
 				fputc(fch, output_file_ptr);
 				fch ^= fch;
@@ -392,7 +395,7 @@ void Huffman::saveCompressedData(){
         // }
 	}
 
-	if(fch) {
+	if(write_remaining) {
 		// cout << "LAST WRITE -> " << (int)fch << endl;
         fputc(fch, output_file_ptr);
     }
